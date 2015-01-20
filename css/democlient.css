@@ -1,0 +1,15 @@
+body 
+{
+    padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+table thead,tfoot
+{
+    background-color: #e0ecf8;
+}
+
+table caption
+{
+    font-size: 16px;
+    padding-bottom: 10px
+}

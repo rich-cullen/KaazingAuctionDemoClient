@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>Realtime Auction System Demo</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css" media="screen" />
+        <link rel="stylesheet" href="css/toastr.css" />     
+        <link rel="stylesheet" href="css/democlient.css" />        
+		<meta name="kaazing:postMessageBridgeURL" content="client/PostMessageBridge.html"><!-- Required for IE6/IE7 cross-origin support -->
+    </head>
+    <body>    
+
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="http://kaazing.com/">Kaazing</a></li>
+                            <li><a href="http://activemq.apache.org/">Apache ActiveMQ</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Building Blocks <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="http://jquery.com/">jQuery</a></li>
+                                    <li><a href="http://twitter.github.com/bootstrap/">Bootstrap</a></li>
+                                    <li><a href="http://knockoutjs.com/">KnockoutJS</a></li>
+                                    <li class="divider"></li>
+                                    <li class="nav-header">Also Powered By</li>
+                                    <li><a href="https://github.com/CodeSeven/toastr">toastr</a></li>
+                                    <li><a href="http://josscrowcroft.github.com/accounting.js/">AccountingJS</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+           
+            <h3>Auction System <small>powered by Kaazing WebSocket Gateway JMS Edition</small></h3>
+            
+            <div class="row">
+                <div class="span4">
+                    <div class="well">
+                        <button id="btnConnect" type="button" class="btn btn-small btn-success"><i class="icon-ok-circle"></i>&nbsp;&nbsp;Connect</button>
+                        <button id="btnDisconnect" type="button" class="btn btn-small" disabled="disabled"><i class="icon-ban-circle"></i>&nbsp;&nbsp;Disconnect</button>   
+                    </div>
+                </div>
+                <div class="span4">
+                    <div class="well">
+                        <a id="bidHelp" href="#" data-toggle="tooltip" title="This is the amount by which you will be raising the current bid every time you click a Bid button">
+                            <i class="icon-question-sign"></i>
+                        </a>      
+                        Bid Increment :&nbsp; 
+                        <span class="input-prepend input-append">
+                            <span class="add-on">£</span>
+                            <input type="text" id="txtBidAmount" class="input-mini" value="50" style="text-align: right" maxlength="5" />
+                            <span class="add-on">.00</span>
+                        </span>               
+                    </div>
+                </div>
+                <div class="span4">                    
+                    <div class="well">
+                    Show me :&nbsp;&nbsp;&nbsp;
+                        <label for="checkboxShowCars" class="checkbox inline">
+                            <input id="checkboxShowCars" type="checkbox" data-toggle="collapse" data-target="#divCars" />
+                            Cars
+                        </label>
+                        <label for="checkboxShowGuitars" class="checkbox inline">
+                            <input id="checkboxShowGuitars" type="checkbox" data-toggle="collapse" data-target="#divGuitars" />
+                            Guitars
+                        </label>  
+                    </div>
+                </div>
+            </div>  
+
+            <div id="divCars" class="collapse">
+                <table id="tableCars" class="table table-bordered table-striped table-condensed">
+                    <caption><strong>Cars</strong></caption>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">Id</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 10%">Year</th>
+                            <th style="width: 15%; text-align: right">Current Bid</th>
+                            <th style="width: 15%; text-align: right">Buy Now</th>
+                            <th style="width: 15%">Actions</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: cars -->
+                        <tr data-bind="css: { success: HasReceivedNewBid }">
+                            <td data-bind="text: Id"></td>
+                            <td data-bind="text: Description"></td>
+                            <td data-bind="text: Year"></td>
+                            <td style="text-align: right"><span data-bind="visible: HasReceivedNewBid"><i class="icon-arrow-up"></i>&nbsp;&nbsp;</span><strong data-bind="currencyText: Cost"></strong></td>
+                            <td style="text-align: right"><span data-bind="currencyText: BuyNowCost"></span></td>
+                            <td>
+                                <button data-bind="attr: { value: 'Bid_Car_' + Id }" type="button" class="btn btn-small btn-info btnAction"><i class="icon-thumbs-up"></i>&nbsp;&nbsp;Bid</button>
+                                <button data-bind="attr: { value: 'Buy_Car_' + Id }" type="button" class="btn btn-small btn-primary btnAction"><i class="icon-shopping-cart"></i>&nbsp;&nbsp;Buy</button>
+                            </td>
+                        </tr>
+                        <!-- /ko -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <a href="#modalNewCar" role="button" class="btn btn-small btn-inverse" data-toggle="modal"><i class="icon-flag icon-white"></i>&nbsp;&nbsp;Sell</a> 
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div id="divGuitars" class="collapse">
+                <table id="tableGuitars" class="table table-bordered table-striped table-condensed">
+                    <caption><strong>Guitars</strong></caption>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">Id</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 10%">Year</th>
+                            <th style="width: 15%; text-align: right">Current Bid</th>
+                            <th style="width: 15%; text-align: right">Buy Now</th>
+                            <th style="width: 15%">Actions</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: guitars -->
+                        <tr data-bind="css: { success: HasReceivedNewBid }">
+                            <td data-bind="text: Id"></td>
+                            <td data-bind="text: Description"></td>
+                            <td data-bind="text: Year"></td>
+                            <td style="text-align: right"><span data-bind="visible: HasReceivedNewBid"><i class="icon-arrow-up"></i>&nbsp;&nbsp;</span><strong data-bind="currencyText: Cost"></strong></td>
+                            <td style="text-align: right"><span data-bind="currencyText: BuyNowCost"></span></td>
+                            <td>
+                                <button data-bind="attr: { value: 'Bid_Guitar_' + Id }" type="button" class="btn btn-small btn-info btnAction"><i class="icon-thumbs-up"></i>&nbsp;&nbsp;Bid</button>
+                                <button data-bind="attr: { value: 'Buy_Guitar_' + Id }" type="button" class="btn btn-small btn-primary btnAction"><i class="icon-shopping-cart"></i>&nbsp;&nbsp;Buy</button>
+                            </td>
+                        </tr>
+                        <!-- /ko -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <a href="#modalNewGuitar" role="button" class="btn btn-small btn-inverse" data-toggle="modal"><i class="icon-flag icon-white"></i>&nbsp;&nbsp;Sell</a> 
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>       
+            </div>            
+
+            <!-- New Car Info Modal -->     
+            <div id="modalNewCar" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="H2">Enter Car Details</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" action="">
+                        <div class="control-group">
+                            <label class="control-label" for="txtCarDescription">Description</label>
+                            <div class="controls">
+                                <input type="text" id="txtCarDescription" class="input-xlarge" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="txtCarYear">Year</label>
+                            <div class="controls">
+                                <input type="text" id="txtCarYear" class="input-small" maxlength="4" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="txtCarCost">Cost</label>
+                            <div class="controls">
+                                <span class="input-prepend input-append">
+                                    <span class="add-on">£</span>
+                                        <input type="text" id="txtCarCost" class="input-mini" style="text-align: right" maxlength="5" />
+                                    <span class="add-on">.00</span>
+                                </span>        
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-small" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                    <button id="btnSellCar" type="button" class="btn btn-small btn-inverse" data-dismiss="modal"><i class="icon-flag icon-white"></i>&nbsp;&nbsp;Sell</button>
+                </div>
+            </div>
+            <!-- end New Car Info Modal -->
+
+            <!-- New Guitar Info Modal -->  
+            <div id="modalNewGuitar" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="H1">Enter Guitar Details</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" action="">
+                        <div class="control-group">
+                            <label class="control-label" for="txtGuitarDescription">Description</label>
+                            <div class="controls">
+                                <input type="text" id="txtGuitarDescription" class="input-xlarge" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="txtGuitarYear">Year</label>
+                            <div class="controls">
+                                <input type="text" id="txtGuitarYear" class="input-small" maxlength="4" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="txtGuitarCost">Cost</label>
+                            <div class="controls">
+                                <span class="input-prepend input-append">
+                                    <span class="add-on">£</span>
+                                        <input type="text" id="txtGuitarCost" class="input-mini" style="text-align: right" maxlength="5" />
+                                    <span class="add-on">.00</span>
+                                </span>        
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-small" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button id="btnSellGuitar" type="button" class="btn btn-small btn-inverse" data-dismiss="modal"><i class="icon-flag icon-white"></i>&nbsp;&nbsp;Sell</button>
+                </div>
+            </div>
+            <!-- end New Guitar Info Modal -->
+            
+            <!-- Login Modal -->
+            <div id="modalLogin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <button id="btnLoginModalClose" type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h3 id="H2">Enter Login Details</h3>
+                </div>
+                <div class="modal-body">
+                    <label id="loginErrorMessage" class="warning"></label>
+                    <form class="form-horizontal" action="">
+                        <div class="control-group">
+                            <label class="control-label" for="txtLogname">Logname</label>
+                            <div class="controls">
+                                <input type="text" id="txtLogname" class="input-large" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="txtPassword">Password</label>
+                            <div class="controls">
+                                <input type="password" id="txtPassword" class="input-large" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnLoginModalCancel" class="btn btn-small" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                    <button id="btnLoginModalLogin" type="button" class="btn btn-small btn-success" data-dismiss="modal">Login</button>
+                </div>
+            </div>
+            <!-- end Login Modal -->
+
+        </div>
+
+        <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="js/json2.js" type="text/javascript"></script>
+        <script src="js/knockout-2.2.0.js" type="text/javascript"></script>
+        <script src="js/toastr.js" type="text/javascript"></script>
+        <script src="js/accounting.min.js" type="text/javascript"></script>
+        <script src="client/WebSocket.js" type="text/javascript"></script>
+        <script src="client/jms/JmsClient.js" type="text/javascript"></script>
+        <script src="js/auctionDemo.js" type="text/javascript"></script>
+    </body>
+</html>
